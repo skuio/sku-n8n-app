@@ -1,0 +1,57 @@
+{
+	"name": "n8n-nodes-sku-io",
+	"version": "0.1.0",
+	"description": "n8n community node for SKU.io — inventory & order management triggers, actions, and searches",
+	"keywords": [
+		"n8n-community-node-package",
+		"sku.io",
+		"inventory",
+		"orders",
+		"ecommerce"
+	],
+	"license": "MIT",
+	"homepage": "https://sku.io",
+	"author": {
+		"name": "SKU.io",
+		"email": "dev@sku.io"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/skuio/sku-n8n-app.git"
+	},
+	"engines": {
+		"node": ">=22.16"
+	},
+	"main": "index.js",
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"credentials": [
+			"dist/credentials/SkuIoOAuth2Api.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/SkuIo/SkuIo.node.js",
+			"dist/nodes/SkuIo/SkuIoTrigger.node.js"
+		]
+	},
+	"scripts": {
+		"build": "tsc && node scripts/copy-assets.mjs",
+		"dev": "n8n-node dev",
+		"lint": "eslint nodes credentials --ext .ts",
+		"lintfix": "eslint nodes credentials --ext .ts --fix",
+		"test": "node --test 'test/**/*.test.mjs'"
+	},
+	"devDependencies": {
+		"@types/node": "^22.20.1",
+		"@typescript-eslint/parser": "~8.32.0",
+		"eslint": "^8.57.0",
+		"eslint-plugin-n8n-nodes-base": "^1.16.3",
+		"n8n-workflow": "^2.16.0",
+		"typescript": "~5.8.3"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}

@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-sku-io.skuIo",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Sales"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://developer.sku.io"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://developer.sku.io"
+			}
+		]
+	}
+}
