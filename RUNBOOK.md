@@ -52,7 +52,7 @@ Run before any release:
 ## Local dev
 
 - Node **>= 22.16** required (`engines.node`).
-- `npm ci && npm run build`, then `n8n-node dev` (`npm run dev`) runs a local n8n instance with this node loaded for iterative development.
+- `npm ci && npm run build`, then `npm run dev` runs a local n8n instance with this node hot-loaded for iterative development. `dev` invokes `@n8n/node-cli` via **`npx --yes`** (fetched + cached on demand) rather than as a committed devDependency — the CLI drags in the entire n8n + LangChain + Playwright tree, which CI (`npm ci`/`lint`/`build`/`test`, none of which use it) must never install. First `npm run dev` installs the n8n runtime on-demand (~5 min); run it with `NODE_TLS_REJECT_UNAUTHORIZED=0` when OAuth-testing against a local valet (self-signed) SKU.io URL.
 - Tests are offline: `npm run build && npm test`.
 
 ## Gap protocol

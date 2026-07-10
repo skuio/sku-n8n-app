@@ -38,7 +38,7 @@
 	},
 	"scripts": {
 		"build": "tsc && node scripts/copy-assets.mjs",
-		"dev": "n8n-node dev",
+		"dev": "npx --yes @n8n/node-cli@^0.38.8 dev",
 		"lint": "eslint nodes credentials --ext .ts",
 		"lintfix": "eslint nodes credentials --ext .ts --fix",
 		"test": "node --test 'test/**/*.test.mjs'"
