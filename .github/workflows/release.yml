@@ -1,0 +1,88 @@
+# Gated npm release for n8n-nodes-sku-io.
+#
+# Publishing is a STOP-gated action (RUNBOOK.md) — hence `workflow_dispatch`
+# only, defaulting to a dry run. There is deliberately no tag/push trigger:
+# a release must be started by a human, on purpose.
+#
+# Auth is npm **trusted publishing** (OIDC) — there is no npm token in this
+# repo and none should ever be added. The registry mints a short-lived
+# credential from the `id-token` below, and because this repo and package are
+# public, npm attaches a provenance attestation automatically. Provenance +
+# trusted publishing are both prerequisites for n8n verified-node status.
+#
+# npmjs.com must have a trusted publisher configured for the package:
+#   Organization or user: skuio
+#   Repository:           sku-n8n-app
+#   Workflow filename:    release.yml   (filename only, not a path)
+# npm cannot publish a package's FIRST version over OIDC (npm/cli#8544) — the
+# 0.1.0 publish was manual; every release after it runs here.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run — build, test and pack, but do not publish'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for npm trusted publishing (OIDC). Without it `npm publish`
+      # has no credential at all — there is no token fallback here.
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      # setup-node pins an npm older than the 11.5.1 that added OIDC support.
+      - name: Use an npm with trusted-publishing support
+        run: |
+          npm install -g npm@latest
+          npm --version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      # Fails loudly rather than letting `npm publish` 403 half way through.
+      - name: Check the version is not already published
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Releasing $NAME@$VERSION"
+          if npm view "$NAME@$VERSION" version --silent >/dev/null 2>&1; then
+            echo "::error::$NAME@$VERSION is already on npm — bump the version in package.json first."
+            exit 1
+          fi
+
+      - name: Pack (dry run)
+        if: ${{ inputs.dry_run }}
+        run: |
+          npm publish --dry-run
+          echo "::notice::Dry run only — nothing was published. Re-run with dry_run unchecked to release."
+
+      - name: Publish to npm
+        if: ${{ !inputs.dry_run }}
+        run: npm publish

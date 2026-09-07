@@ -6,7 +6,7 @@ Operational runbook for building, verifying, and releasing the SKU.io n8n commun
 
 - **Platform account:** `dev@sku.io` (n8n, npm, GitHub org contexts as applicable).
 - **Credentials:** stored in the 1Password `sku` vault. Never in this repo, never in `.env` committed anywhere (`.secrets/` and `.env` are gitignored).
-- **npm publisher:** TBD — creation of the npm account/token is gated by Kalvin.
+- **npm publisher:** the `dev@sku.io` npm account (1Password `sku` vault → *Npmjs*). After the first manual publish, releases run through GitHub Actions over OIDC — there is **no** npm token stored in this repo or in GitHub secrets, by design.
 
 ## STOP-gates (explicit go-ahead from Kalvin required)
 
@@ -29,7 +29,41 @@ Do NOT do any of the following without an explicit go-ahead:
   - `npm run lint` clean (eslint-plugin-n8n-nodes-base community/credentials/nodes rulesets)
   - Submit via the [n8n Creator Portal](https://creators.n8n.io)
 
-Note: CI (`.github/workflows/ci.yml`) intentionally has **no publish job** — publishing is a gated manual action per the STOP-gates above.
+### How a release actually runs
+
+`.github/workflows/release.yml` is the only thing that may publish. It is
+`workflow_dispatch`-only and **defaults to a dry run**, so a release is always a
+deliberate human act — which is what the STOP-gate asks for. Run it from the
+Actions tab, leave *Dry run* ticked to rehearse, untick it to publish.
+
+`_removed:` CI used to carry a note saying this repo intentionally has **no**
+publish workflow at all. That was the right call while no publishing path had
+been agreed, but it was read as "never automate publishing", which points away
+from the trusted-publisher requirement above. The gate was never "no workflow";
+it was "no unattended publish". `release.yml` keeps that gate (manual dispatch,
+dry-run default) while satisfying the verified-node requirement. Do **not**
+re-add a `push:`/tag trigger to it, and do **not** add an `NPM_TOKEN` secret —
+auth is OIDC, and a stored token would reintroduce exactly the long-lived
+credential the verified-node rules exist to remove.
+
+### npm trusted publisher — one-time setup
+
+On npmjs.com, as the `dev@sku.io` npm account: **Package → Settings → Trusted
+publisher → GitHub Actions**, and enter
+
+| Field | Value |
+|---|---|
+| Organization or user | `skuio` |
+| Repository | `sku-n8n-app` |
+| Workflow filename | `release.yml` (filename only — not a path) |
+| Environment | *(leave blank)* |
+
+**npm cannot publish a package's first version over OIDC** — the npmjs.com UI
+only exposes package settings once the package exists
+([npm/cli#8544](https://github.com/npm/cli/issues/8544)). So `0.1.0` had to be
+published manually from an authenticated CLI; the trusted publisher is
+configured immediately afterwards and every later release goes through
+`release.yml`. Do not treat that first manual publish as the normal path.
 
 ## Backend contract verification log
 
