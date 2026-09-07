@@ -38,6 +38,8 @@ Note: CI (`.github/workflows/ci.yml`) intentionally has **no publish job** — p
 | 2026-07-09 | OAuth token endpoint RFC 6749 error contract | Verified local |
 | 2026-07-09 | 10 registry events + invariants tests | Verified green (77 tests) |
 | 2026-07-09 | `/v2/stores` scope gate (`settings:read`) | Added on sku branch SKU-8142, pending deploy |
+| 2026-09-07 | `/v2/stores` scope gate (`settings:read`) | **Live** — merged to `skuio/sku` master (PR #1637, commit `05882c2935`) and deployed. This credential requests `settings:read`, so the Store dropdown clears the gate. |
+| 2026-09-07 | Merge-caveat follow-up: does gating `/v2/stores` break the live Zapier app? | **No** — the Zapier app never calls `/v2/stores`. Separately discovered: its `store_list` dropdown calls `GET /api/stores`, an index route deleted from `skuio/sku` on 2026-06-17 (commit `c2e2149b14`), so that dropdown is broken independently of this gate. Tracked outside this repo. |
 
 Append a row every time a backend contract assumption is (re-)verified or a backend change lands that this package depends on.
 
