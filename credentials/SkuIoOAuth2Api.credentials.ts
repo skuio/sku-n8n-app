@@ -1,4 +1,4 @@
-import type { ICredentialType, INodeProperties } from 'n8n-workflow';
+import type { ICredentialType, Icon, INodeProperties } from 'n8n-workflow';
 
 /**
  * OAuth2 credential for SKU.io (Laravel Passport, authorization-code grant).
@@ -17,6 +17,8 @@ export class SkuIoOAuth2Api implements ICredentialType {
 	extends = ['oAuth2Api'];
 
 	displayName = 'SKU.io OAuth2 API';
+
+	icon: Icon = { light: 'file:../nodes/SkuIo/skuio.svg', dark: 'file:../nodes/SkuIo/skuio.dark.svg' };
 
 	// eslint-disable-next-line n8n-nodes-base/cred-class-field-documentation-url-miscased, n8n-nodes-base/cred-class-field-documentation-url-not-http-url
 	documentationUrl = 'https://developer.sku.io';

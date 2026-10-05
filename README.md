@@ -52,12 +52,34 @@ n8n does not ship a shared first-party OAuth client for SKU.io, because every n8
 
 | Resource | Operations |
 |---|---|
-| Customer | Create, Find |
-| Inventory | Create (adjustment), Find |
-| Product | Create, Find |
-| Purchase Order | Create, Find |
-| Sales Order | Create, Find |
-| Supplier | Create, Find |
+| Customer | Create, Find by Email |
+| Inventory | Create Adjustment |
+| Product | Create, Find by SKU, Update |
+| Purchase Order | Create |
+| Sales Order | Create, Find by Number |
+| Supplier | Create, Find by Name |
+
+Customer, Product, Store, Supplier and Warehouse fields are dynamic dropdowns loaded from your SKU.io tenant. The action node is also usable as an AI Agent tool.
+
+## Usage examples
+
+**Post new sales orders to a chat channel**
+
+1. Add **SKU.io Trigger**, choose the **New Sales Order** event, and activate the workflow. The node registers a webhook subscription in SKU.io; deactivating the workflow removes it.
+2. Each new order arrives as one item containing the order, its lines, customer and store. Connect it to Slack, email, or any other node.
+
+**Create an order from an external form**
+
+1. Start with any trigger (for example a Webhook or Form node).
+2. **SKU.io → Customer → Find by Email**; if no customer is found, **SKU.io → Customer → Create**.
+3. **SKU.io → Sales Order → Create** with the customer, a store, and one or more lines (product, quantity, price, warehouse).
+
+**Raise a purchase order when stock runs low**
+
+1. **SKU.io Trigger → Inventory Adjusted**, followed by an **If** node on the quantity.
+2. **SKU.io → Purchase Order → Create** for the product's supplier and destination warehouse. SKU.io only accepts lines for products that are linked to the chosen supplier.
+
+Errors from SKU.io (for example validation messages) are shown on the failing item. Enable **Continue On Fail** to route them as data instead of stopping the workflow.
 
 ## Compatibility
 
@@ -75,6 +97,11 @@ npm run dev       # n8n-node dev — local n8n with this node loaded
 ```
 
 Tests are offline (no network, no live tenant) and cover the request helper's pod-routing invariants, error shaping, input hygiene, and the package/catalog contracts.
+
+## Resources
+
+- [SKU.io API documentation](https://developer.sku.io)
+- [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
 
 ## License
 

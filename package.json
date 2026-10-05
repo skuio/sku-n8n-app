@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-sku-io",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "n8n community node for SKU.io — inventory & order management triggers, actions, and searches",
 	"keywords": [
 		"n8n-community-node-package",

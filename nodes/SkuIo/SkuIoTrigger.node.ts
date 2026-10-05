@@ -8,6 +8,7 @@ import type {
 	IWebhookFunctions,
 	IWebhookResponseData,
 } from 'n8n-workflow';
+import { NodeConnectionTypes } from 'n8n-workflow';
 
 import { skuIoApiRequest } from './GenericFunctions';
 
@@ -21,7 +22,7 @@ export class SkuIoTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'SKU.io Trigger',
 		name: 'skuIoTrigger',
-		icon: 'file:skuio.svg',
+		icon: { light: 'file:skuio.svg', dark: 'file:skuio.dark.svg' },
 		group: ['trigger'],
 		version: 1,
 		subtitle: '={{$parameter["event"]}}',
@@ -30,7 +31,7 @@ export class SkuIoTrigger implements INodeType {
 			name: 'SKU.io Trigger',
 		},
 		inputs: [],
-		outputs: ['main'],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
 				name: 'skuIoOAuth2Api',
@@ -163,9 +164,14 @@ export class SkuIoTrigger implements INodeType {
 							'DELETE',
 							`/webhook-subscriptions/${staticData.webhookId}`,
 						);
-					} catch {
+					} catch (error) {
 						// DELETE is idempotent on the SKU.io side; a subscription that is
-						// already gone must not block deactivating the workflow.
+						// already gone must not block deactivating the workflow, so the
+						// failure is logged rather than rethrown.
+						this.logger.warn('SKU.io Trigger: could not delete webhook subscription', {
+							webhookId: staticData.webhookId,
+							error: (error as Error).message,
+						});
 					}
 				}
 

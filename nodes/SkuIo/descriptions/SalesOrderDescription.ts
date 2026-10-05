@@ -51,13 +51,12 @@ export const salesOrderDescription: INodeProperties[] = [
 		name: 'order_status',
 		type: 'options',
 		required: true,
-		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 		options: [
-			{ name: 'Draft', value: 'draft' },
-			{ name: 'Reserved', value: 'reserved' },
-			{ name: 'Open', value: 'open' },
-			{ name: 'Closed', value: 'closed' },
 			{ name: 'Cancelled', value: 'cancelled' },
+			{ name: 'Closed', value: 'closed' },
+			{ name: 'Draft', value: 'draft' },
+			{ name: 'Open', value: 'open' },
+			{ name: 'Reserved', value: 'reserved' },
 		],
 		default: 'draft',
 		description: 'Status the order is created with',

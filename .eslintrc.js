@@ -53,6 +53,12 @@ module.exports = {
 			files: ['./nodes/**/*.ts'],
 			plugins: ['eslint-plugin-n8n-nodes-base'],
 			extends: ['plugin:n8n-nodes-base/nodes'],
+			rules: {
+				// Same overrides as n8n's verification scanner (@n8n/scan-community-package):
+				// inputs/outputs use NodeConnectionTypes.Main, which its own ruleset requires.
+				'n8n-nodes-base/node-class-description-inputs-wrong-regular-node': 'off',
+				'n8n-nodes-base/node-class-description-outputs-wrong': 'off',
+			},
 		},
 	],
 };

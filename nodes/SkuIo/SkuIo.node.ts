@@ -6,8 +6,9 @@ import type {
 	INodePropertyOptions,
 	INodeType,
 	INodeTypeDescription,
+	JsonObject,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 import {
 	customerDescription,
@@ -31,7 +32,7 @@ export class SkuIo implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'SKU.io',
 		name: 'skuIo',
-		icon: 'file:skuio.svg',
+		icon: { light: 'file:skuio.svg', dark: 'file:skuio.dark.svg' },
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
@@ -40,8 +41,8 @@ export class SkuIo implements INodeType {
 			name: 'SKU.io',
 		},
 		usableAsTool: true,
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
 				name: 'skuIoOAuth2Api',
@@ -315,7 +316,14 @@ export class SkuIo implements INodeType {
 					);
 					continue;
 				}
-				throw error;
+				// skuIoApiRequest already threw a NodeApiError with the SKU.io message and
+				// HTTP status; tag the failing item. The constructor returns an existing
+				// NodeApiError unchanged, so nothing about the API error is lost.
+				if (error instanceof NodeApiError) {
+					error.context.itemIndex = i;
+					throw new NodeApiError(this.getNode(), error as unknown as JsonObject);
+				}
+				throw new NodeOperationError(this.getNode(), error as Error, { itemIndex: i });
 			}
 		}
 
